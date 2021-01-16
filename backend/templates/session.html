@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- Taken from https://codeburst.io/building-your-first-chat-application-using-flask-in-7-minutes-f98de4adfa5d-->
+<html lang="en">
+<head>
+  <title>Flask_Chat_App</title>
+</head>
+<body>
+
+  <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+  <div class="message_holder"></div>
+
+  <form id="chat-form" action="" method="POST">
+    <input type="text" class="username" placeholder="User Name"/>
+    <input type="text" class="message" placeholder="Messages"/>
+    <input type="submit"/>
+  </form>
+  <h4> Test input </h4>
+  <form id="test-form-1" action="" method="POST">
+    <input type="text" class="user_id" placeholder="user_id"/>
+    <input type="text" class="url" placeholder="url"/>
+    <input type="submit"/>
+  </form>
+<p id="users"></p>
+  <button id=start-call>Start a Call</button>
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script-->
+    <script
+			  src="https://code.jquery.com/jquery-3.5.1.js"
+			  integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+			  crossorigin="anonymous"></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.js></script>
+  <script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on( 'connect', function() {
+      socket.emit( 'my event', {
+        data: 'User Connected'
+      } )
+
+      var form = $( '#chat-form' ).on( 'submit', function( e ) {
+        e.preventDefault()
+        let user_name = $( 'input.username' ).val()
+        let user_input = $( 'input.message' ).val()
+        socket.emit( 'my event', {
+          user_name : user_name,
+          message : user_input
+        } )
+        $( 'input.message' ).val( '' ).focus()
+      } )
+
+      var test_form_1 = $( '#test-form-1' ).on( 'submit', function( e ) {
+        e.preventDefault()
+        let uid = $( 'input.user_id' ).val()
+        let url = $( 'input.url' ).val()
+        socket.emit( 'page load', {
+          user_id : uid,
+          url : url
+        } )
+        $( 'input.message' ).val( '' ).focus()
+      } )
+
+      /*var start_call_button = $( '#start-call' ).on( 'click', function( e ) {
+        socket.emit( 'start call', {
+          user_id: uid
+          url: url
+        } )
+      } )*/
+
+    } )
+
+    socket.on( 'my response', function( msg ) {
+      console.log( msg )
+      if( typeof msg.user_name !== 'undefined' ) {
+        $( 'h3' ).remove()
+        $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>' )
+      }
+    })
+
+    socket.on ('nusers', n => {console.log(n); document.getElementById("users").innerHTML = n})
+  </script>
+
+</body>
+</html>
