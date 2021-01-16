@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
+from opentok import OpenTok
 import os
 
 app = Flask(__name__)
@@ -34,9 +35,16 @@ def update_user(data):
     add_user(data["url"], data["user_id"])
     emit("nusers", number_users(data["url"]), broadcast=True)
 
+api_key = "47084444"
+api_secret = "1846a2e0f1df2138b0c036f6448cc3b8747b5d6f"
+opentok = OpenTok(api_key, api_secret)
+session = opentok.create_session()
+session_id = session.session_id
+
 @app.route('/', methods=["GET", "POST"])
 def landing():
-    return render_template('session.html')#"Start Call"
+    token = opentok.generate_token(session_id)
+    return render_template('index.html', api_key=api_key, session_id=session_id, token=token)
  
 def messageReceived(methods=['GET', 'POST']):
     print('message received')
