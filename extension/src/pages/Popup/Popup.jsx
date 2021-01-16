@@ -4,16 +4,17 @@ import Greetings from '../../containers/Greetings/Greetings';
 import './Popup.css';
 
 const Popup = () => {
+  console.log("here");
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/pages/Popup/Popup.js</code> and save to reload.
+          Welcome to Omegalearn! Toggle your availability to find someone else interested in what you're browsing!
         </p>
         <a
           className="App-link"
-          href="https://reactjs.org"
+          href="newtab.html"
           target="_blank"
           rel="noopener noreferrer"
         >
