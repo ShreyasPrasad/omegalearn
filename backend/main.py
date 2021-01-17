@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from docopt import docopt
+#from docopt import docopt
 from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 from opentok import OpenTok
