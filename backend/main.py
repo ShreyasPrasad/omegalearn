@@ -23,9 +23,15 @@ def get_tok_session(url):
 
 def add_user(url, user_id):
     def remove_user(user_id):
-        try:
-            site_users[users_current_site[user_id]].remove(user_id)
-        except:
+        # Returns None if not found
+        old_url = users_current_site.get(user_id)
+        if(old_url):
+            # Update the room for the URL that the user was previously in
+            #room = users_current_site[user_id]
+            leave_room(old_url)
+            site_users[old_url].remove(user_id)
+            emit("nusers", number_users(old_url), room=old_url)
+        else:
             return
     remove_user(user_id)
     try:
@@ -44,7 +50,8 @@ def update_user(data):
     add_user(data["url"], data["user_id"])
     # Only address users for a particular URL
     room = data["url"]
-    emit("nusers", number_users(data["url"]), broadcast=True)
+    join_room(room)
+    emit("nusers", number_users(data["url"]), room=room)#broadcast=True)
 
 api_key = "47084444"
 api_secret = "1846a2e0f1df2138b0c036f6448cc3b8747b5d6f"
@@ -74,14 +81,9 @@ def on_start_call(data, methods=['GET', 'POST']):
     if number_users(data["url"]) <= 1:
         emit("no other users", {})
     else:
-        # opentok stuff here
         session = get_tok_session(data["url"])
         token = opentok.generate_token(session.session_id)
-        # Need to connect to the call on the client side
-        emit("call started", {"session_id": session.session_id, "api_key": api_key, "session_id": session.session_id, "token": token, "static": url_for('static', filename='js/helloworld.js')}, broadcast=True)
-        # call(session.session_id, token)
-        # redirect(url_for("templates", filename="index.html"))
-        #return render_template("index.html", api_key=api_key, session_id=session, token=session.session_id)
+        emit("call started", {"session_id": session.session_id, "api_key": api_key, "session_id": session.session_id, "token": token}, room=data["url"])#broadcast=True)#, "static": url_for('static', filename='js/helloworld.js')}, broadcast=True)
 
 @socketio.on('page load')
 def handle_page_load(data, methods=['GET', 'POST']):
