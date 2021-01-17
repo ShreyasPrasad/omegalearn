@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
-from docopt import docopt
+#from docopt import docopt
 from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 from opentok import OpenTok
 import os
 import sys
-from sqlalchemy.exc import ProgrammingError
+#from sqlalchemy.exc import ProgrammingError
 
-from omegabase.omegabase import Omegabase
-from util.connect_with_sqlalchemy import (build_sqla_connection_string,
-                                          test_connection)
-from util.exception_handling import render_error_page
+#from omegabase.omegabase import Omegabase
+#from util.connect_with_sqlalchemy import (build_sqla_connection_string,
+#                                          test_connection)
+#from util.exception_handling import render_error_page
 
 
 app = Flask(__name__)
@@ -21,26 +21,27 @@ socketio = SocketIO(app)
 socketio.init_app(app, cors_allowed_origins="*")
 
 
-_URL = sys.argv[1]
-_MAX_RECORDS = 20
-print(_URL)
+#_URL = sys.argv[1]
+#_MAX_RECORDS = 20
+#print(_URL)
 
 chrome_ids = {}
+
 
 # if _URL is None:  # No --url flag; check for environment variable DB_URI
 # environment_connection_string = os.environ.get('DB_URI')
 # CONNECTION_STRING = build_sqla_connection_string(
 #     environment_connection_string)
 # else:  # url was passed with `--url`
-CONNECTION_STRING = build_sqla_connection_string(_URL)
+#CONNECTION_STRING = build_sqla_connection_string(_URL)
 # Load environment variables from .env file
 
 # Instantiate the movr object defined in movr/movr.py
-omegabase = Omegabase(CONNECTION_STRING, max_records=_MAX_RECORDS)
+#omegabase = Omegabase(CONNECTION_STRING, max_records=_MAX_RECORDS)
 
 # Verify connection to database is working.
 # Suggest help if common errors are encountered.
-test_connection(omegabase.engine)
+#test_connection(omegabase.engine)
 
 
 def get_tok_session():
@@ -58,6 +59,7 @@ def remove_user(data):
     active_users = omegabase.leave_call(url)
 
     leave_room(url)
+
 
     emit("leave call", {"url": url, "active_users": active_users}, room=url)
 
@@ -97,7 +99,7 @@ opentok = OpenTok(api_key, api_secret)
 def landing():
     # token = opentok.generate_token(session_id)
     # , api_key=api_key, session_id=session_id, token=token)
-    active_users = omegabase.join_call(url='learn.com')
+    #active_users = omegabase.join_call(url='learn.com')
     return render_template('session.html')
 
 
@@ -105,6 +107,17 @@ def landing():
 def call(session_id):
     token = opentok.generate_token(session_id)
     return render_template('index.html', api_key=api_key, session_id=session_id, token=token)
+
+@app.route('/notes/', methods=["POST"])
+def add_notes():
+    data = request.json(force=True)
+    url = data["url"]
+    note = data["note"]
+    if(url not in notes):
+        notes[url] = [note]
+        return
+    notes[url].append(note)
+    return
 
 
 def messageReceived(methods=['GET', 'POST']):

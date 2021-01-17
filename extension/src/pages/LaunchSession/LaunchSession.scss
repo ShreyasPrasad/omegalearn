@@ -1,0 +1,14 @@
+$defaultHighlightColor: #FF6495;
+h1,
+h2,
+h3,
+h4,
+h6 {
+  color: $defaultHighlightColor;
+}
+
+$complimentaryHighlightColor: #78FFF1;
+
+h5 {
+  color: $complimentaryHighlightColor;
+}
