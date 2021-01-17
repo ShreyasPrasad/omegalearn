@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>OpenTok Hello World</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/callpage.css') }}">
+    <title>OmegaLearn</title>
     <script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
     <script type="text/javascript">
         var apiKey = '{{ api_key }}';
@@ -12,10 +15,11 @@
     <script src="{{ url_for('static', filename='js/helloworld.js') }}"></script>
 </head>
 <body>
-    <h2>Hello, World!</h2>
+    <h2>Welcome to OmegaLearn</h2>
+    <main id="videos" class="flex-center">
+    <div class="call" id="publisher"></div>
 
-    <div id="publisher"></div>
-
-    <div id="subscribers"></div>
+    <div class="call" id="subscribers"></div>
+    </main>
 </body>
 </html>
