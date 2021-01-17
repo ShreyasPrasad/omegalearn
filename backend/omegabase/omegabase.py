@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.dialects import registry
 from sqlalchemy.orm import sessionmaker
 
-from omegabase.transactions import (add_view_txn, end_call_txn, get_view_txn,
+from omegabase.transactions import (add_view_txn, edit_note_txn, end_call_txn, get_note_txn, get_view_txn,
                                     join_call_txn, leave_call_txn,
                                     remove_view_txn, start_call_txn)
 
@@ -104,6 +104,17 @@ class Omegabase:
         """
         return run_transaction(sessionmaker(bind=self.engine),
                                lambda session: get_view_txn(session, url))
+
+    def get_note(self, url):
+        """
+        Get note from url
+        """
+        return run_transaction(sessionmaker(bind=self.engine),
+                               lambda session: get_note_txn(session, url))
+
+    def edit_note(self, url, content):
+        return run_transaction(sessionmaker(bind=self.engine),
+                               lambda session: edit_note_txn(session, url, content))
 
     def show_tables(self):
         """

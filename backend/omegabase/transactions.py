@@ -6,7 +6,7 @@ This is where the python code meets the database.
 
 from sqlalchemy.sql.expression import func
 
-from omegabase.models import View
+from omegabase.models import Note, View
 
 
 def start_call_txn(session, url, session_id):
@@ -212,3 +212,28 @@ def get_view_txn(session, url):
             'session_id': view.session_id,
             'last_checkin': view.last_checkin,
             'active_users': view.active_users}
+
+
+def get_note_txn(session, url):
+    note = session.query.filter(Note.url == url).first()
+
+    if note is None:
+        return None
+
+    return note
+
+
+def edit_note_txn(session, url, content):
+    current_time = func.now()
+    note = session.query.filter(Note.url == url).first()
+
+    if note is None:
+        new_row = Note(url=str(url), ts=current_time, content=content)
+        session.add(new_row)
+        return new_row
+    
+    note.content = content
+    note.ts = current_time
+    note.url = url
+    
+    return note
