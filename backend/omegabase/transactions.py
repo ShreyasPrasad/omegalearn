@@ -61,7 +61,8 @@ def join_call_txn(session, url):
     view.active_users = view.active_users + 1
     view.last_checkin = func.now()
 
-    return [view.active_users, view.session_id]  # Just making it explicit that this worked.
+    # Just making it explicit that this worked.
+    return [view.active_users, view.session_id]
 
 
 def leave_call_txn(session, url):
@@ -130,7 +131,8 @@ def add_view_txn(session, url, active_users=0):
         url {Text}
     """
     current_time = func.now()  # Current time on database
-    new_row = View(url=str(url), last_checkin=current_time, active_users=active_users)
+    new_row = View(url=str(url), last_checkin=current_time,
+                   active_users=active_users)
 
     # https://docs.sqlalchemy.org/en/13/orm/session_api.html#sqlalchemy.orm.session.Session.add
 
@@ -219,7 +221,7 @@ def get_note_txn(session, url):
 
     if note is None:
         current_time = func.now()
-        return Note(url=str(url), ts=current_time, content="")
+        return {"url": str(url), "ts": current_time, "content": ""}
 
     return note
 
@@ -232,9 +234,9 @@ def edit_note_txn(session, url, content):
         new_row = Note(url=str(url), ts=current_time, content=content)
         session.add(new_row)
         return new_row
-    
+
     note.content = content
     note.ts = current_time
     note.url = url
-    
+
     return note
