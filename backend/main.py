@@ -76,23 +76,23 @@ def update_user(data):
         session_id = get_tok_session()
         omegabase.start_call(url, session_id)
 
-    note = omegabase.get_note(url)
+    [content, ts, url] = omegabase.get_note(url)
 
     join_room(url)
 
     emit("session found", {"url": url, "active_users": active_users,
                            "session_id": session_id}, room=url)  # broadcast=True)
-    emit("note updated", {"content": note.content,
-                          "url": url, "timestamp": note.ts}, room=url)
+    emit("note updated", {"content": content,
+                          "url": url, "timestamp": ts}, room=url)
     return
 
 
 def edit_note(data):
     content = data["content"]
     url = data["url"]
-    note = omegabase.edit_note(url, content)
-    emit("note updated", {"content": note.content,
-                          "url": url, "timestamp": note.ts}, room=url)
+    [content, ts, url] = omegabase.edit_note(url, content)
+    emit("note updated", {"content": content,
+                          "url": url, "timestamp": ts}, room=url)
 
 
 api_key = "47084444"

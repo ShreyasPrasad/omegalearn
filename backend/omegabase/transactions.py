@@ -221,9 +221,9 @@ def get_note_txn(session, url):
 
     if note is None:
         current_time = func.now()
-        return {"url": str(url), "ts": current_time, "content": ""}
+        return ["", current_time, url]
 
-    return note
+    return [note.content, note.ts, note.url]
 
 
 def edit_note_txn(session, url, content):
@@ -239,4 +239,4 @@ def edit_note_txn(session, url, content):
     note.ts = current_time
     note.url = url
 
-    return note
+    return [note.content, note.ts, note.url]
