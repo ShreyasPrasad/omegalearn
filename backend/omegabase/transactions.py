@@ -215,7 +215,7 @@ def get_view_txn(session, url):
 
 
 def get_note_txn(session, url):
-    note = session.query.filter(Note.url == url).first()
+    note = session.query(Note).filter(Note.url == url).first()
 
     if note is None:
         return None
