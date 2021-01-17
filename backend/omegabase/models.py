@@ -38,8 +38,8 @@ class Note(Base):
     """
     __tablename__ = 'notes'
     id = Column(Integer)
-    content = Column(String)
-    url = Column(Text, Foreign_key('views.url'))
+    content = Column(Text)
+    url = Column(Text)
     ts = Column(DateTime, default=func.now)
     PrimaryKeyConstraint(id)
 
