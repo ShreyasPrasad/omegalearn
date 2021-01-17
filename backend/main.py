@@ -67,7 +67,7 @@ def update_user(data):
     """Update the user's current active tab"""
     chrome_id = data["chrome_id"]
     url = data["url"]
-    if chrome_ids[chrome_id]:
+    if chrome_id in chrome_ids:
         chrome_ids[chrome_id].add(url)
     else:
         chrome_ids[chrome_id] = set([url])
