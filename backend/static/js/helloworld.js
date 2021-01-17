@@ -16,6 +16,12 @@ session.on({
         console.error('Failed to publish', error);
       }
     });
+
+    // Center the user's video
+    let ddiv = document.querySelector('body>div'); // $x('/html/body/div')
+    let vid_container = document.getElementById("videos");
+    // vid_container.appendChild(ddiv)
+    vid_container.insertBefore(ddiv, document.getElementById("subscribers"));
   },
 
   // This function runs when another client publishes a stream (eg. session.publish())
