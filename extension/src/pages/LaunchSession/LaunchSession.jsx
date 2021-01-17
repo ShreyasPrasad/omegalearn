@@ -36,7 +36,7 @@ const LaunchSession = () => {
 
   const emitUpdateNoteEvent = Debounce((value) => {
     socket.emit("note edited", {
-      note: value,
+      content: value,
       url:  getLocalStorageSessionUrl()
     });
   }, 250);
