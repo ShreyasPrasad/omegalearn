@@ -2,4 +2,4 @@ flask_venv/*
 # Temporary files
 **/*~
 .env
-__pycache__/*
+__pycache__

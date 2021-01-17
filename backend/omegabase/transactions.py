@@ -22,7 +22,7 @@ def start_call_txn(session, url, session_id):
     # SELECT * FROM views WHERE url = <url> AND session_id = NULL
     #         LIMIT 1;
     view = session.query(View).filter(View.url == url).filter(
-        View.session_id == NULL).first()
+        View.session_id == None).first()
 
     if view is None:
         return None
@@ -61,7 +61,7 @@ def join_call_txn(session, url):
     view.active_users = view.active_users + 1
     view.last_checkin = func.now()
 
-    return view.active_users  # Just making it explicit that this worked.
+    return [view.active_users, view.session_id]  # Just making it explicit that this worked.
 
 
 def leave_call_txn(session, url):
@@ -88,7 +88,7 @@ def leave_call_txn(session, url):
     view.active_users = view.active_users - 1
     view.last_checkin = func.now()
 
-    return True  # Just making it explicit that this worked.
+    return view.active_users  # Just making it explicit that this worked.
 
 
 def end_call_txn(session, url):
@@ -112,7 +112,7 @@ def end_call_txn(session, url):
     # perform the update on the row that matches the query above.
     # UPDATE views SET session_id = NULL, last_checkin = now()
     #               WHERE url = <url>
-    view.session_id = NULL
+    view.session_id = None
     view.last_checkin = func.now()
 
     return True  # Just making it explicit that this worked.
@@ -130,7 +130,7 @@ def add_view_txn(session, url, active_users=0):
         url {Text}
     """
     current_time = func.now()  # Current time on database
-    new_row = View(url=str(url), last_checkin=current_time)
+    new_row = View(url=str(url), last_checkin=current_time, active_users=active_users)
 
     # https://docs.sqlalchemy.org/en/13/orm/session_api.html#sqlalchemy.orm.session.Session.add
 
