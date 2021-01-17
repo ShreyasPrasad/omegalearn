@@ -6,12 +6,12 @@ from flask_socketio import SocketIO, join_room, leave_room, send, emit
 from opentok import OpenTok
 import os
 import sys
-#from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError
 
-#from omegabase.omegabase import Omegabase
-#from util.connect_with_sqlalchemy import (build_sqla_connection_string,
-#                                          test_connection)
-#from util.exception_handling import render_error_page
+from omegabase.omegabase import Omegabase
+from util.connect_with_sqlalchemy import (build_sqla_connection_string,
+                                          test_connection)
+from util.exception_handling import render_error_page
 
 
 app = Flask(__name__)
@@ -21,27 +21,22 @@ socketio = SocketIO(app)
 socketio.init_app(app, cors_allowed_origins="*")
 
 
-#_URL = sys.argv[1]
-#_MAX_RECORDS = 20
-#print(_URL)
+_URL = sys.argv[1]
+_MAX_RECORDS = 20
 
 chrome_ids = {}
 
+CONNECTION_STRING = build_sqla_connection_string(_URL)
 
-# if _URL is None:  # No --url flag; check for environment variable DB_URI
-# environment_connection_string = os.environ.get('DB_URI')
-# CONNECTION_STRING = build_sqla_connection_string(
-#     environment_connection_string)
-# else:  # url was passed with `--url`
-#CONNECTION_STRING = build_sqla_connection_string(_URL)
+
 # Load environment variables from .env file
 
-# Instantiate the movr object defined in movr/movr.py
-#omegabase = Omegabase(CONNECTION_STRING, max_records=_MAX_RECORDS)
+# Instantiate the omegabase object defined in omegabase/omegabase.py
+omegabase = Omegabase(CONNECTION_STRING, max_records=_MAX_RECORDS)
 
 # Verify connection to database is working.
 # Suggest help if common errors are encountered.
-#test_connection(omegabase.engine)
+test_connection(omegabase.engine)
 
 
 def get_tok_session():
