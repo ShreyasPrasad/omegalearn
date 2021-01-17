@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<!-- Taken from https://codeburst.io/building-your-first-chat-application-using-flask-in-7-minutes-f98de4adfa5d-->
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Omeagalearn Backend Tester</title>
+  <script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
+  <!--script type="text/javascript">
+        var apiKey = '{{ api_key }}';
+        var sessionId = '{{ session_id }}';
+        var token = '{{ token }}';
+    </script>
+    <script src="{{ url_for('static', filename='js/helloworld.js') }}"></script-->
+</head>
+
+<body>
+
+  <!--h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+  <div class="message_holder"></div-->
+
+  <!--form id="chat-form" action="" method="POST">
+    <input type="text" class="username" placeholder="User Name"/>
+    <input type="text" class="message" placeholder="Messages"/>
+    <input type="submit"/>
+  </form -->
+  <h2>Hello, World!</h2>
+
+  <div id="publisher"></div>
+
+  <div id="subscribers"></div>
+
+  <h4> Test input </h4>
+  <p>This will get sent by the chrome extension</p>
+  <form id="test-form-1" action="" method="POST">
+    <input type="text" class="user_id" placeholder="user_id" />
+    <input type="text" class="url" placeholder="url" />
+    <input type="submit" />
+  </form>
+  <h4>User Info</h4>
+  <h5>User Id</h5>
+  <p id=uid></p>
+  <h5>URL</h5>
+  <p id=current_url></p>
+  <h5>Number of users with same URL</h5>
+  <p id="users"></p>
+  <button id=start-call>Start a Call</button>
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script-->
+  <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+    crossorigin="anonymous"></script>
+  <script src=https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.js></script>
+  <script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    var url_global;
+    var id;
+    socket.on('connect', function () {
+      socket.emit('my event', {
+        data: 'User Connected'
+      })
+
+      /*var form = $( '#chat-form' ).on( 'submit', function( e ) {
+        e.preventDefault()
+        let user_name = $( 'input.username' ).val()
+        let user_input = $( 'input.message' ).val()
+        socket.emit( 'my event', {
+          user_name : user_name,
+          message : user_input
+        } )
+        $( 'input.message' ).val( '' ).focus()
+      } )*/
+
+      var test_form_1 = $('#test-form-1').on('submit', function (e) {
+        e.preventDefault()
+        id = $('input.user_id').val()
+        url_global = $('input.url').val()
+        socket.emit('page load', {
+          user_id: id,
+          url: url_global
+        })
+        document.getElementById("uid").innerHTML = id
+        document.getElementById('current_url').innerHTML = url_global
+      })
+
+      var start_call_button = $('#start-call').on('click', function (e) {
+        socket.emit('start call', {
+          user_id: id,
+          url: url_global
+        })
+      })
+
+    })
+
+    /*socket.on( 'my response', function( msg ) {
+      console.log( msg )
+      if( typeof msg.user_name !== 'undefined' ) {
+        $( 'h3' ).remove()
+        $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>' )
+      }
+    })*/
+
+    socket.on('nusers', n => { console.log(n); document.getElementById("users").innerHTML = n })
+    socket.on('call started', d => {
+      console.log("call starting")
+      let apiKey = d.api_key;
+      let sessionId = d.session_id;
+      let token = d.token;
+      // Taken from helloworld.js
+
+      // Initialize an OpenTok Session object
+      var session = OT.initSession(apiKey, sessionId);
+
+      // Initialize a Publisher, and place it into the element with id="publisher"
+      var publisher = OT.initPublisher('publisher');
+
+      // Attach event handlers
+      session.on({
+
+        // This function runs when session.connect() asynchronously completes
+        sessionConnected: function (event) {
+          // Publish the publisher we initialzed earlier (this will trigger 'streamCreated' on other
+          // clients)
+          session.publish(publisher, function (error) {
+            if (error) {
+              console.error('Failed to publish', error);
+            }
+          });
+        },
+
+        // This function runs when another client publishes a stream (eg. session.publish())
+        streamCreated: function (event) {
+          // Create a container for a new Subscriber, assign it an id using the streamId, put it inside
+          // the element with id="subscribers"
+          var subContainer = document.createElement('div');
+          subContainer.id = 'stream-' + event.stream.streamId;
+          document.getElementById('subscribers').appendChild(subContainer);
+
+          // Subscribe to the stream that caused this event, put it inside the container we just made
+          session.subscribe(event.stream, subContainer, function (error) {
+            if (error) {
+              console.error('Failed to subscribe', error);
+            }
+          });
+        }
+
+      });
+
+      // Connect to the Session using the 'apiKey' of the application and a 'token' for permission
+      session.connect(token, function (error) {
+        if (error) {
+          console.error('Failed to connect', error);
+        }
+      });
+      console.log(d)
+    })
+    socket.on('no other users', () => { alert("no other users, wait for Number of users with same URL >= 2") })
+  </script>
+
+</body>
+
+</html>
