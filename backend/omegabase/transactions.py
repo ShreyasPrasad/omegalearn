@@ -39,21 +39,21 @@ def start_call_txn(session, url, session_id):
 
 def join_call_txn(session, url):
     """
-    Update a row of the views table.
+    Update or add a row or in the views table.
 
     Arguments:
         session {.Session} -- The active session for the database connection.
         url {String}
 
     Returns:
-        {Boolean} -- True if the call was joined.
+        active_users {Integer} -- Number of active users on the url
     """
     # find the row
     # SELECT * FROM views WHERE url = <url>;
     view = session.query(View).filter(View.url == url).first()
 
     if view is None:
-        return False
+        return add_view_txn(session, url, active_users=1)
 
     # perform the update on the row that matches the query above.
     # UPDATE views SET active_users = active_users + 1, last_checkin = now()
@@ -61,7 +61,7 @@ def join_call_txn(session, url):
     view.active_users = view.active_users + 1
     view.last_checkin = func.now()
 
-    return True  # Just making it explicit that this worked.
+    return view.active_users  # Just making it explicit that this worked.
 
 
 def leave_call_txn(session, url):
@@ -118,7 +118,7 @@ def end_call_txn(session, url):
     return True  # Just making it explicit that this worked.
 
 
-def add_view_txn(session, url):
+def add_view_txn(session, url, active_users=0):
     """
     Insert a row into the views table.
 
@@ -136,7 +136,7 @@ def add_view_txn(session, url):
 
     session.add(new_row)
 
-    return True
+    return active_users
 
 
 def remove_view_txn(session, url):
