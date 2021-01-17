@@ -22,7 +22,7 @@ def start_call_txn(session, url, session_id):
     # SELECT * FROM views WHERE url = <url> AND session_id = NULL
     #         LIMIT 1;
     view = session.query(View).filter(View.url == url).filter(
-        View.session_id == NULL).first()
+        View.session_id == None).first()
 
     if view is None:
         return None
