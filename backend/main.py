@@ -82,7 +82,7 @@ def update_user(data):
     
     join_room(url)
 
-    emit("join call", {url: url, active_users: active_users, session_id: session_id}, room=url)  # broadcast=True)
+    emit("session found", {url: url, active_users: active_users, session_id: session_id}, room=url)  # broadcast=True)
     return
 
 
