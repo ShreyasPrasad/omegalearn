@@ -7,6 +7,7 @@ let socket = null;
 const OMEGALEARN_AVAILABILITY_LOCAL_STORAGE_KEY = "omegalearnAvailability";
 const OMEGALEARN_SESSION_ID_LOCAL_STORAGE_KEY = "omegalearnSessionID";
 const OMEGALEARN_SESSION_URL_LOCAL_STORAGE_KEY = "omegalearnSessionUrl";
+const OMEGALEARN_SESSION_NOTE_LOCAL_STORAGE_KEY = "omegalearnSessionNote";
 const OMEGALEARN_CHROME_ID_LOCAL_STORAGE_KEY = "chrome_id";
 
 //generate unique chrome_id when chrome extension is loaded
@@ -43,6 +44,11 @@ socket.on('session found', function (msg) {
     chrome.tabs.create({url:"launchsession.html"});
 });
 
+
+socket.on('note updated', function (msg) {
+    console.log(msg);
+    localStorage.setItem(OMEGALEARN_SESSION_NOTE_LOCAL_STORAGE_KEY, msg.content);
+});
 
 chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     if(tab.url!="chrome://newtab/" && 

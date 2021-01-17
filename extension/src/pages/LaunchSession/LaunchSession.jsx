@@ -10,6 +10,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 
 const OMEGALEARN_SESSION_ID_LOCAL_STORAGE_KEY = "omegalearnSessionID";
 const OMEGALEARN_SESSION_URL_LOCAL_STORAGE_KEY = "omegalearnSessionUrl";
+const OMEGALEARN_SESSION_NOTE_LOCAL_STORAGE_KEY = "omegalearnSessionNote";
 
 const getLocalStorageSessionId = () => {
   return localStorage.getItem(OMEGALEARN_SESSION_ID_LOCAL_STORAGE_KEY);
@@ -17,6 +18,10 @@ const getLocalStorageSessionId = () => {
 
 const getLocalStorageSessionUrl = () => {
   return localStorage.getItem(OMEGALEARN_SESSION_URL_LOCAL_STORAGE_KEY);
+}  
+
+const getSessionNote = () => {
+  return localStorage.getItem(OMEGALEARN_SESSION_NOTE_LOCAL_STORAGE_KEY);
 }  
 
 let socket = null;
@@ -27,7 +32,7 @@ if(socket == null){
 
 const LaunchSession = () => {
   const [localStorageSessionId, setLocalStorageSessionId] = useState(getLocalStorageSessionId());
-  const [sessionNote, setSessionNote] = useState("");
+  const [sessionNote, setSessionNote] = useState(getSessionNote());
 
   const emitUpdateNoteEvent = Debounce((value) => {
     socket.emit("note edited", {
@@ -41,9 +46,7 @@ const LaunchSession = () => {
       setSessionNote(ev.target.value);
   }
 
-  socket.on('note updated', (msg)=>{
-      setSessionNote(msg.content)
-  });
+  window.addEventListener('storage',e => setSessionNote(getSessionNote()));
 
   const getSessionFoundJSX = () => {
     return (
