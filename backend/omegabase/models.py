@@ -2,7 +2,8 @@
 Aligns sqlalchemy's schema for the "views" table with the database.
 """
 
-from sqlalchemy import (Boolean, Column, DateTime, Float, Integer, PrimaryKeyConstraint, String, Text)
+from sqlalchemy import (Boolean, Column, DateTime, Float,
+                        Integer, PrimaryKeyConstraint, String, Text)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import func
 
@@ -26,3 +27,22 @@ class View(Base):
     def __repr__(self):
         return "<View(url='{0}', active_users='{1}')>".format(
             self.url, self.active_users)
+
+
+class Note(Base):
+    """
+    DeclarativeMeta class for the notes table.
+
+    Arguments:
+        Base {DeclarativeMeta} -- Base class for model to inherit.
+    """
+    __tablename__ = 'notes'
+    id = Column(Integer)
+    content = Column(String)
+    url = Column(Text, Foreign_key('views.url'))
+    ts = Column(DateTime, default=func.now)
+    PrimaryKeyConstraint(id)
+
+    def __repr__(self):
+        return "<Note(content='{0}', timestamp='{1}', url='{2}')>".format(
+            self.content, self.ts, self.url)

@@ -55,7 +55,6 @@ def remove_user(data):
 
     leave_room(url)
 
-
     emit("leave call", {"url": url, "active_users": active_users}, room=url)
 
     return
@@ -76,11 +75,21 @@ def update_user(data):
     if not session_id:
         session_id = get_tok_session()
         omegabase.start_call(url, session_id)
-    
+
+    note = omegabase.get_note(url)
+
     join_room(url)
 
-    emit("session found", {"url": url, "active_users": active_users, "session_id": session_id}, room=url)  # broadcast=True)
+    emit("session found", {"url": url, "active_users": active_users,
+                           "session_id": session_id}, room=url)  # broadcast=True)
+    emit("note updated", {"note": note}, room=url)
     return
+
+def edit_note(data):
+    content = data["content"]
+    url = data["url"]
+    note = omegabase.edit_note(url, content)
+    emit("note updated", {"note": note}, room=url)
 
 
 api_key = "47084444"
@@ -102,21 +111,6 @@ def landing():
 def call(session_id):
     token = opentok.generate_token(session_id)
     return render_template('index.html', api_key=api_key, session_id=session_id, token=token)
-
-@app.route('/notes/', methods=["POST"])
-def add_notes():
-    data = request.json(force=True)
-    url = data["url"]
-    note = data["note"]
-    if(url not in notes):
-        notes[url] = [note]
-        return
-    notes[url].append(note)
-    return
-
-
-def messageReceived(methods=['GET', 'POST']):
-    print('message received')
 
 
 @socketio.on('start call')
@@ -140,6 +134,10 @@ def handle_url_added(data, methods=['GET', 'POST']):
 @socketio.on('url removed')
 def handle_url_removed(data, methods=['GET', 'POST']):
     remove_user(data)
+
+@socketio.on('note edited')
+def handle_note_changed(data, methods=['POST']):
+    edit_note(data)
 
 
 if __name__ == '__main__':
