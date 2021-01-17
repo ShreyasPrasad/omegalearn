@@ -26,8 +26,6 @@ _MAX_RECORDS = 20
 print(_URL)
 
 chrome_ids = {}
-users_current_site = {}
-tok_sessions = {}
 
 # if _URL is None:  # No --url flag; check for environment variable DB_URI
 # environment_connection_string = os.environ.get('DB_URI')
@@ -45,53 +43,45 @@ omegabase = Omegabase(CONNECTION_STRING, max_records=_MAX_RECORDS)
 test_connection(omegabase.engine)
 
 
-def get_tok_session(url):
-    try:
-        return tok_sessions[url]
-    except KeyError:
-        session = opentok.create_session()
-        tok_sessions[url] = session
-        return session
+def get_tok_session():
+    session = opentok.create_session()
+    return session.session_id
 
 
 def remove_user(data):
-    # Returns None if not found
-    old_url = data["url"]
-    if(old_url):
-        # Update the room for the URL that the user was previously in
-        #room = users_current_site[user_id]
-        leave_room(old_url)
-        chrome_ids[old_url].remove(data["chrome_id"])
-        emit("nusers", number_users(old_url), room=old_url)
-    else:
-        return
+    chrome_id = data["chrome_id"]
+    url = data["url"]
+    if chrome_ids[chrome_id]:
+        chrome_ids[chrome_id].remove(url)
 
+    active_users = omegabase.leave_call(url)
 
-def add_user(url, user_id):
-    session = ""
-    try:
-        chrome_ids[url].add(user_id)
-    except KeyError:
-        chrome_ids[url] = set([user_id])
-        session = get_tok_session(url)
-    finally:
-        users_current_site[user_id] = url
-        if(len(chrome_ids[url] > 1)):
-            emit("session found", {"session_id": session.session_id}, room=url)
+    leave_room(url)
 
+    emit("leave call", {url: url, active_users: active_users}, room=url)
 
-def number_users(url):
-    return len(chrome_ids[url])
+    return
 
 
 def update_user(data):
     """Update the user's current active tab"""
-    print(data)
-    add_user(data["url"], data["chrome_id"])
-    # Only address users for a particular URL
-    room = data["url"]
-    join_room(room)
-    emit("nusers", number_users(data["url"]), room=room)  # broadcast=True)
+    chrome_id = data["chrome_id"]
+    url = data["url"]
+    if chrome_ids[chrome_id]:
+        chrome_ids[chrome_id].add(url)
+    else:
+        chrome_ids[chrome_id] = set([url])
+
+    # Check for number of active users on url
+    active_users, session_id = omegabase.join_call(url)
+    if not session_id:
+        session_id = get_tok_session()
+        omegabase.start_call(url, session_id)
+    
+    join_room(url)
+
+    emit("join call", {url: url, active_users: active_users, session_id: session_id}, room=url)  # broadcast=True)
+    return
 
 
 api_key = "47084444"
@@ -112,17 +102,12 @@ def landing():
 @app.route('/call/<session_id>', methods=["GET", "POST"])
 def call(session_id):
     token = opentok.generate_token(session_id)
+    omegabase.start_call(session_id)
     return render_template('index.html', api_key=api_key, session_id=session_id, token=token)
 
 
 def messageReceived(methods=['GET', 'POST']):
     print('message received')
-
-
-@socketio.on('my event')
-def handle_my_custom_event(json, methods=['GET', 'POST']):
-    print('received my event: ' + str(json))
-    emit('my response', json, callback=messageReceived)
 
 
 @socketio.on('start call')
@@ -132,6 +117,7 @@ def on_start_call(data, methods=['GET', 'POST']):
     else:
         session = get_tok_session(data["url"])
         token = opentok.generate_token(session.session_id)
+        omegabase.start_call(session_id)
         # broadcast=True)#, "static": url_for('static', filename='js/helloworld.js')}, broadcast=True)
         emit("call started", {"session_id": session.session_id,
                               "api_key": api_key, "token": token}, room=data["url"])
@@ -141,10 +127,11 @@ def on_start_call(data, methods=['GET', 'POST']):
 def handle_url_added(data, methods=['GET', 'POST']):
     update_user(data)
 
+
 @socketio.on('url removed')
 def handle_url_removed(data, methods=['GET', 'POST']):
     remove_user(data)
-    
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
