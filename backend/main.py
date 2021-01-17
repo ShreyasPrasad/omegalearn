@@ -51,8 +51,9 @@ def get_tok_session():
 def remove_user(data):
     chrome_id = data["chrome_id"]
     url = data["url"]
-    if chrome_ids[chrome_id]:
-        chrome_ids[chrome_id].remove(url)
+    if chrome_id in chrome_ids:
+        if url in chrome_ids[chrome_id]:
+            chrome_ids[chrome_id].remove(url)
 
     active_users = omegabase.leave_call(url)
 
@@ -68,7 +69,8 @@ def update_user(data):
     chrome_id = data["chrome_id"]
     url = data["url"]
     if chrome_id in chrome_ids:
-        chrome_ids[chrome_id].add(url)
+        if url not in chrome_ids[chrome_id]:
+            chrome_ids[chrome_id].add(url)
     else:
         chrome_ids[chrome_id] = set([url])
 
