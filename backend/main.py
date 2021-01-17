@@ -82,14 +82,17 @@ def update_user(data):
 
     emit("session found", {"url": url, "active_users": active_users,
                            "session_id": session_id}, room=url)  # broadcast=True)
-    emit("note updated", {"note": note}, room=url)
+    emit("note updated", {"content": note.content,
+                          "url": url, "timestamp": note.ts}, room=url)
     return
+
 
 def edit_note(data):
     content = data["content"]
     url = data["url"]
     note = omegabase.edit_note(url, content)
-    emit("note updated", {"note": note}, room=url)
+    emit("note updated", {"content": note.content,
+                          "url": url, "timestamp": note.ts}, room=url)
 
 
 api_key = "47084444"
@@ -134,6 +137,7 @@ def handle_url_added(data, methods=['GET', 'POST']):
 @socketio.on('url removed')
 def handle_url_removed(data, methods=['GET', 'POST']):
     remove_user(data)
+
 
 @socketio.on('note edited')
 def handle_note_changed(data, methods=['POST']):
