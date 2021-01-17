@@ -82,8 +82,7 @@ def update_user(data):
 
     emit("session found", {"url": url, "active_users": active_users,
                            "session_id": session_id}, room=url)  # broadcast=True)
-    emit("note updated", {"content": content,
-                          "url": url, "timestamp": ts}, room=url)
+    emit("note updated", {"content": content, "url": url}, room=url)
     return
 
 
@@ -91,8 +90,7 @@ def edit_note(data):
     content = data["content"]
     url = data["url"]
     [content, ts, url] = omegabase.edit_note(url, content)
-    emit("note updated", {"content": content,
-                          "url": url, "timestamp": ts}, room=url)
+    emit("note updated", {"content": content, "url": url}, room=url)
 
 
 api_key = "47084444"
