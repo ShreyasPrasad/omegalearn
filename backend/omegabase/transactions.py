@@ -218,7 +218,8 @@ def get_note_txn(session, url):
     note = session.query(Note).filter(Note.url == url).first()
 
     if note is None:
-        return None
+        current_time = func.now()
+        return Note(url=str(url), ts=current_time, content="")
 
     return note
 
