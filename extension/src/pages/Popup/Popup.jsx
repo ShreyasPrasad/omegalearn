@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from '../../assets/img/logo.svg';
-import Greetings from '../../containers/Greetings/Greetings';
+import Switch from "react-switch";
 import './Popup.css';
 
+const OMEGALEARN_AVAILABILITY_LOCAL_STORAGE_KEY = "omegalearnAvailability";
+
+const getLocalStorageAvailability = () => {
+  return localStorage.getItem(OMEGALEARN_AVAILABILITY_LOCAL_STORAGE_KEY);
+}
+
 const Popup = () => {
-  console.log("here");
+
+  const [localStorageAvailability, setLocalStorageAvailability] = useState(getLocalStorageAvailability());
+  const handleChange = (evt) => {
+    localStorage.setItem(OMEGALEARN_AVAILABILITY_LOCAL_STORAGE_KEY, evt ? "true" : "false");
+    setLocalStorageAvailability(localStorage.getItem(OMEGALEARN_AVAILABILITY_LOCAL_STORAGE_KEY));
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -12,7 +23,18 @@ const Popup = () => {
         <p>
           Welcome to Omegalearn! Toggle your availability to find someone else interested in what you're browsing!
         </p>
-        <a
+        <Switch onChange={handleChange} checked={localStorageAvailability === "true"} />
+      </header>
+    </div>
+  );
+};
+
+export default Popup;
+
+
+/*
+
+ <a
           className="App-link"
           href="newtab.html"
           target="_blank"
@@ -20,9 +42,5 @@ const Popup = () => {
         >
           Learn React
         </a>
-      </header>
-    </div>
-  );
-};
 
-export default Popup;
+*/
