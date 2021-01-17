@@ -6,12 +6,12 @@ from flask_socketio import SocketIO, join_room, leave_room, send, emit
 from opentok import OpenTok
 import os
 import sys
-from sqlalchemy.exc import ProgrammingError
+#from sqlalchemy.exc import ProgrammingError
 
-from omegabase.omegabase import Omegabase
-from util.connect_with_sqlalchemy import (build_sqla_connection_string,
-                                          test_connection)
-from util.exception_handling import render_error_page
+#from omegabase.omegabase import Omegabase
+#from util.connect_with_sqlalchemy import (build_sqla_connection_string,
+#                                          test_connection)
+#from util.exception_handling import render_error_page
 
 
 app = Flask(__name__)
@@ -21,9 +21,9 @@ socketio = SocketIO(app)
 socketio.init_app(app, cors_allowed_origins="*")
 
 
-_URL = sys.argv[1]
-_MAX_RECORDS = 20
-print(_URL)
+#_URL = sys.argv[1]
+#_MAX_RECORDS = 20
+#print(_URL)
 
 chrome_ids = {}
 users_current_site = {}
@@ -34,15 +34,15 @@ tok_sessions = {}
 # CONNECTION_STRING = build_sqla_connection_string(
 #     environment_connection_string)
 # else:  # url was passed with `--url`
-CONNECTION_STRING = build_sqla_connection_string(_URL)
+#CONNECTION_STRING = build_sqla_connection_string(_URL)
 # Load environment variables from .env file
 
 # Instantiate the movr object defined in movr/movr.py
-omegabase = Omegabase(CONNECTION_STRING, max_records=_MAX_RECORDS)
+#omegabase = Omegabase(CONNECTION_STRING, max_records=_MAX_RECORDS)
 
 # Verify connection to database is working.
 # Suggest help if common errors are encountered.
-test_connection(omegabase.engine)
+#test_connection(omegabase.engine)
 
 
 def get_tok_session(url):
@@ -69,6 +69,20 @@ def remove_user(data):
 
 def add_user(url, user_id):
     session = ""
+    if(url in chrome_ids):
+        chrom_ids[url].add(user_id)
+    else:
+        chrome_ids[url] = set([user_id])
+    if(url in tok_sessions):
+        if(tok_sessions[url] is None):
+            session = get_tok_session(url)
+        session = tok_sessions[url]
+        emit("session found", {"session_id": session.session_id}, room=url)
+        return
+    else:
+        session = get_tok_session(url)
+        emit("session found", {"session_id": session.session_id}, room=url)
+    return
     try:
         chrome_ids[url].add(user_id)
     except KeyError:
@@ -105,7 +119,7 @@ opentok = OpenTok(api_key, api_secret)
 def landing():
     # token = opentok.generate_token(session_id)
     # , api_key=api_key, session_id=session_id, token=token)
-    active_users = omegabase.join_call(url='learn.com')
+    #active_users = omegabase.join_call(url='learn.com')
     return render_template('session.html')
 
 
