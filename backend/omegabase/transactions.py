@@ -225,7 +225,7 @@ def get_note_txn(session, url):
 
 def edit_note_txn(session, url, content):
     current_time = func.now()
-    note = session.query.filter(Note.url == url).first()
+    note = session.query(Note).filter(Note.url == url).first()
 
     if note is None:
         new_row = Note(url=str(url), ts=current_time, content=content)
