@@ -37,11 +37,10 @@ class Note(Base):
         Base {DeclarativeMeta} -- Base class for model to inherit.
     """
     __tablename__ = 'notes'
-    id = Column(Integer)
-    content = Column(Text)
     url = Column(Text)
+    content = Column(Text)
     ts = Column(DateTime, default=func.now)
-    PrimaryKeyConstraint(id)
+    PrimaryKeyConstraint(url)
 
     def __repr__(self):
         return "<Note(content='{0}', timestamp='{1}', url='{2}')>".format(
