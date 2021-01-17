@@ -78,7 +78,7 @@ def add_user(url, user_id):
         if(tok_sessions[url] is None):
             session = get_tok_session(url)
         session = tok_sessions[url]
-        emit("session found", {"session_id": session.session_id}, room=url)
+        emit("session found", {"session_id": session.session_id, "url": url}, room=url)
         return
     else:
         session = get_tok_session(url)
