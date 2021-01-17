@@ -44,7 +44,7 @@ class Omegabase:
 
     def join_call(self, url):
         """
-        Wraps a `run_transaction` call that increments the user count of a url.
+        Wraps a `run_transaction` call that adds a new url or increments the user count of a url.
 
         Arguments:
             url

@@ -25,6 +25,10 @@ _URL = sys.argv[1]
 _MAX_RECORDS = 20
 print(_URL)
 
+chrome_ids = {}
+users_current_site = {}
+tok_sessions = {}
+
 # if _URL is None:  # No --url flag; check for environment variable DB_URI
 # environment_connection_string = os.environ.get('DB_URI')
 # CONNECTION_STRING = build_sqla_connection_string(
@@ -50,35 +54,40 @@ def get_tok_session(url):
         return session
 
 
+def remove_user(data):
+    # Returns None if not found
+    old_url = data["url"]
+    if(old_url):
+        # Update the room for the URL that the user was previously in
+        #room = users_current_site[user_id]
+        leave_room(old_url)
+        chrome_ids[old_url].remove(data["chrome_id"])
+        emit("nusers", number_users(old_url), room=old_url)
+    else:
+        return
+
+
 def add_user(url, user_id):
-    def remove_user(user_id):
-        # Returns None if not found
-        old_url = users_current_site.get(user_id)
-        if(old_url):
-            # Update the room for the URL that the user was previously in
-            #room = users_current_site[user_id]
-            leave_room(old_url)
-            site_users[old_url].remove(user_id)
-            emit("nusers", number_users(old_url), room=old_url)
-        else:
-            return
-    remove_user(user_id)
+    session = ""
     try:
-        site_users[url].add(user_id)
+        chrome_ids[url].add(user_id)
     except KeyError:
-        site_users[url] = set([user_id])
+        chrome_ids[url] = set([user_id])
+        session = get_tok_session(url)
     finally:
         users_current_site[user_id] = url
+        if(len(chrome_ids[url] > 1)):
+            emit("session found", {"session_id": session.session_id}, room=url)
 
 
 def number_users(url):
-    return len(site_users[url])
+    return len(chrome_ids[url])
 
 
 def update_user(data):
     """Update the user's current active tab"""
     print(data)
-    add_user(data["url"], data["user_id"])
+    add_user(data["url"], data["chrome_id"])
     # Only address users for a particular URL
     room = data["url"]
     join_room(room)
@@ -96,12 +105,13 @@ opentok = OpenTok(api_key, api_secret)
 def landing():
     # token = opentok.generate_token(session_id)
     # , api_key=api_key, session_id=session_id, token=token)
-    url = omegabase.join_call(url='learn.com')
+    active_users = omegabase.join_call(url='learn.com')
     return render_template('session.html')
 
 
-@app.route('/call', methods=["GET", "POST"])
-def call(session_id, token):
+@app.route('/call/<session_id>', methods=["GET", "POST"])
+def call(session_id):
+    token = opentok.generate_token(session_id)
     return render_template('index.html', api_key=api_key, session_id=session_id, token=token)
 
 
@@ -123,14 +133,18 @@ def on_start_call(data, methods=['GET', 'POST']):
         session = get_tok_session(data["url"])
         token = opentok.generate_token(session.session_id)
         # broadcast=True)#, "static": url_for('static', filename='js/helloworld.js')}, broadcast=True)
-        emit("call started", {"session_id": session.session_id, "api_key": api_key,
-                              "session_id": session.session_id, "token": token}, room=data["url"])
+        emit("call started", {"session_id": session.session_id,
+                              "api_key": api_key, "token": token}, room=data["url"])
 
 
-@socketio.on('page load')
-def handle_page_load(data, methods=['GET', 'POST']):
+@socketio.on('url added')
+def handle_url_added(data, methods=['GET', 'POST']):
     update_user(data)
 
+@socketio.on('url removed')
+def handle_url_removed(data, methods=['GET', 'POST']):
+    remove_user(data)
+    
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0')
