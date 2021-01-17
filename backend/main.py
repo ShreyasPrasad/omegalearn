@@ -104,7 +104,6 @@ def landing():
 @app.route('/call/<session_id>', methods=["GET", "POST"])
 def call(session_id):
     token = opentok.generate_token(session_id)
-    omegabase.start_call(session_id)
     return render_template('index.html', api_key=api_key, session_id=session_id, token=token)
 
 
