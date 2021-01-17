@@ -59,7 +59,7 @@ def remove_user(data):
 
     leave_room(url)
 
-    emit("leave call", {url: url, active_users: active_users}, room=url)
+    emit("leave call", {"url": url, "active_users": active_users}, room=url)
 
     return
 
@@ -82,7 +82,7 @@ def update_user(data):
     
     join_room(url)
 
-    emit("session found", {url: url, active_users: active_users, session_id: session_id}, room=url)  # broadcast=True)
+    emit("session found", {"url": url, "active_users": active_users, "session_id": session_id}, room=url)  # broadcast=True)
     return
 
 
