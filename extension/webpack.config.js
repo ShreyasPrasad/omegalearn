@@ -36,7 +36,7 @@ if (fileSystem.existsSync(secretsPath)) {
 var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
-    newtab: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.jsx'),
+    launchsession: path.join(__dirname, 'src', 'pages', 'LaunchSession', 'index.jsx'),
     options: path.join(__dirname, 'src', 'pages', 'Options', 'index.tsx'),
     popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
     background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
@@ -143,9 +143,9 @@ var options = {
       ],
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.html'),
-      filename: 'newtab.html',
-      chunks: ['newtab'],
+      template: path.join(__dirname, 'src', 'pages', 'LaunchSession', 'index.html'),
+      filename: 'launchsession.html',
+      chunks: ['launchsession'],
       cache: false,
     }),
     new HtmlWebpackPlugin({

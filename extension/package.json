@@ -18,6 +18,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "react": "^17.0.1",
+    "react-awesome-button": "^6.5.1",
     "react-dom": "^17.0.1",
     "react-hot-loader": "^4.13.0",
     "react-switch": "^6.0.0",
