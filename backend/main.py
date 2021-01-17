@@ -28,6 +28,7 @@ socketio.init_app(app, cors_allowed_origins="*")
 chrome_ids = {}
 users_current_site = {}
 tok_sessions = {}
+notes = {}
 
 # if _URL is None:  # No --url flag; check for environment variable DB_URI
 # environment_connection_string = os.environ.get('DB_URI')
@@ -81,7 +82,7 @@ def add_user(url, user_id):
         return
     else:
         session = get_tok_session(url)
-        emit("session found", {"session_id": session.session_id}, room=url)
+        emit("session found", {"session_id": session.session_id, "url": url}, room=url)
     return
     try:
         chrome_ids[url].add(user_id)
@@ -91,7 +92,7 @@ def add_user(url, user_id):
     finally:
         users_current_site[user_id] = url
         if(len(chrome_ids[url] > 1)):
-            emit("session found", {"session_id": session.session_id}, room=url)
+            emit("session found", {"session_id": session.session_id, "url": url}, room=url)
 
 
 def number_users(url):
@@ -127,6 +128,17 @@ def landing():
 def call(session_id):
     token = opentok.generate_token(session_id)
     return render_template('index.html', api_key=api_key, session_id=session_id, token=token)
+
+@app.route('/notes/', methods=["POST"])
+def add_notes():
+    data = request.json(force=True)
+    url = data["url"]
+    note = data["note"]
+    if(url not in notes):
+        notes[url] = [note]
+        return
+    notes[url].append(note)
+    return
 
 
 def messageReceived(methods=['GET', 'POST']):
