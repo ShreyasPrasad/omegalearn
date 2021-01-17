@@ -70,7 +70,7 @@ def remove_user(data):
 def add_user(url, user_id):
     session = ""
     if(url in chrome_ids):
-        chrom_ids[url].add(user_id)
+        chrome_ids[url].add(user_id)
     else:
         chrome_ids[url] = set([user_id])
     if(url in tok_sessions):
