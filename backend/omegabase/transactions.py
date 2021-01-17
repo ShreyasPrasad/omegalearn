@@ -112,7 +112,7 @@ def end_call_txn(session, url):
     # perform the update on the row that matches the query above.
     # UPDATE views SET session_id = NULL, last_checkin = now()
     #               WHERE url = <url>
-    view.session_id = NULL
+    view.session_id = None
     view.last_checkin = func.now()
 
     return True  # Just making it explicit that this worked.
